@@ -1,21 +1,36 @@
 const http = require('http'),
-  url = require('url'),
-  api = require('./route')
+  mysql = require('mysql'),
+  config = require('./config/config.sql'),
+  connect = mysql.createConnection(config),
+  getParams = require('./utils/getParams')
 
 http
   .createServer((req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*')
     res.setHeader('Access-Control-Allow-Headers', '*')
 
-    const req_url = url.parse(req.url, true)
-    const method = req_url.pathname.slice(1)
-
-    function success(status = 200, response = {}) {
-      res.writeHead(status, { 'Content-Type': 'text/plain' })
-      res.end(response)
+    if (req.method === 'POST') {
+      if (req.url === '/user/login') {
+        getParams(req, params => {
+          const sql = `select pwd from user_table where user="${
+            params.userName
+          }"`
+          connect.query(sql, (err, rows) => {
+            if (err) res.end('{ code: 0, data: null }')
+            if (!rows.length) {
+              res.end('{ code: 0, data: null }')
+              return
+            }
+            if ((params.passWord = new String(rows[0].pwd))) {
+              res.end(JSON.stringify({ code: 1, data: rows[0] }))
+            }
+          })
+        })
+      }
+    } else {
+      res.writeHead(200, { 'Content-Type': 'text/plain' })
+      res.end()
     }
-
-    api[method](success)
   })
   .listen(8888, () => {
     console.log('server is start with port of 8888')
