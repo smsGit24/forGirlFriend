@@ -1,4 +1,4 @@
-import Home from './Home/components'
+import Home from './Home'
 
 const routes = [
   {
