@@ -133,21 +133,13 @@ class Particle extends Component {
       }
     }
 
-    // for (let i = 0; i < rows * cols; i += intervel) {
-    //   const alpha = data.data[4 * i + 3]
-    //   if (alpha) {
-    //     const x = i % cols
-    //     const y = Math.floor(i / cols)
-    //     points.push({
-    //       x: x + (Math.random() - 0.5) * 20,
-    //       y: y + (Math.random() - 0.5) * 20
-    //     })
-    //   }
-    // }
     return points
   }
 
   renderParticles = () => {
+    if (this.actionsIndex === Actions.length) {
+      return false
+    }
     const offscreenCanvasCtx = this.offscreenCanvas.getContext('2d')
     const { width, height } = this.canvas
     const geometry = this.geometrys[this.actionsIndex]
@@ -175,16 +167,24 @@ class Particle extends Component {
 
   nextAction = () => {
     ++this.actionsIndex
+    if (this.actionsIndex === 4) {
+      // this.props.setOver()
+      // return
+    }
     this.tick = 0
     if (this.actionsIndex === Actions.length) {
-      window.cancelAnimationFrame(this.raf)
-      this.actionsIndex = 0
-      this.geometrys = []
-      this.start()
+      this.props.setOver()
+      // window.cancelAnimationFrame(this.raf)
+      // this.actionsIndex = 0
+      // this.geometrys = []
+      // this.start()
     }
   }
 
   draw = () => {
+    if (this.actionsIndex === Actions.length) {
+      return false
+    }
     this.tick++
     this.clear()
     this.renderParticles()
@@ -195,6 +195,9 @@ class Particle extends Component {
   }
 
   initCanvas = c => {
+    if (this.actionsIndex === Actions.length) {
+      return false
+    }
     this.canvas = c
     this.canvas.width = c.clientWidth
     this.canvas.height = c.clientHeight
